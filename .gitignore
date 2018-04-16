@@ -1,0 +1,11 @@
+*.log
+*.iml
+*.pyc
+*.swp
+.DS_Store
+.idea/
+.vagrant
+.vscode
+bin/
+gopath/
+out/

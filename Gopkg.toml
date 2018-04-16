@@ -1,0 +1,8 @@
+
+[[constraint]]
+  name = "github.com/gin-gonic/gin"
+  branch = "master"
+
+[[constraint]]
+  name = "gopkg.in/ldap.v2"
+  version = "v2.5.1"
