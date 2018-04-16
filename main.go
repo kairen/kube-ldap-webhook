@@ -62,12 +62,7 @@ func auth(c *gin.Context) {
 
 func main() {
 	r := gin.Default()
-
-	// healthz
 	r.GET("/healthz", healthz)
-
-	// authentication
 	r.POST("/auth", auth)
-
 	r.Run(":8087")
 }
