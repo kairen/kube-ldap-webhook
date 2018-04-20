@@ -1,0 +1,12 @@
+language: go
+os: linux
+sudo: required
+go:
+  - 1.9.x
+go_import_path: github.com/kairen/kube-ldap-webhook
+
+install:
+  - go get -u github.com/golang/dep/cmd/dep
+script:
+  - dep ensure
+  - make
