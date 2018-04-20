@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ldap-webhook-kubeconfig
+  namespace: kube-system
+data:
+  webhook-auth: |
+    clusters:
+    - name: ldap-authn
+      cluster:
+        server: http://localhost:8087/auth
+    users:
+      - name: apiserver
+    current-context: webhook
+    contexts:
+    - name: webhook
+      context:
+        cluster: ldap-authn
+        user: apiserver
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ldap-auth-webhook
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: k8s-ldap
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        name: k8s-ldap
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        node-role.kubernetes.io/master: ''
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      initContainers:
+      - name: init-webhook-config
+        image: busybox
+        command: ["/bin/sh", "-c", "cat /mnt/webhook-auth > /srv/kubernetes/webhook-auth;"]
+        volumeMounts:
+          - name: webhook-dir
+            mountPath: /srv/kubernetes/
+          - name: webhook-kubeconfig
+            mountPath: /mnt/
+      containers:
+      - name: kube-ldap-webhook
+        image: kairen/kube-ldap-webhook:v0.1.0
+        args:
+        - -config=/config/ldap-auth.conf
+        resources:
+          limits:
+            cpu: 250m
+            memory: 64Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        ports:
+        - containerPort: 8087
+          hostPort: 8087
+          name: http
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          failureThreshold: 2
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          failureThreshold: 2
+          initialDelaySeconds: 15
+          timeoutSeconds: 10
+        volumeMounts:
+          - name: ldap-auth-config
+            mountPath: /config
+      volumes:
+       - name: ldap-auth-config
+         secret:
+           secretName: ldap-auth-config
+       - name: webhook-kubeconfig
+         configMap:
+           name: ldap-webhook-kubeconfig
+           items:
+           - key: webhook-auth
+             path: webhook-auth
+       - name: webhook-dir
+         hostPath:
+           path: /srv/kubernetes/
