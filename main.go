@@ -125,7 +125,7 @@ func authLDAP(token string) (*User, error) {
 
 func main() {
 	listenAddr := flag.String("listen-addr", ":8087", "Authn service listen address.")
-	config := flag.String("config", "ldap-auth.conf", "Authn service listen address.")
+	config := flag.String("config", "ldap-auth.conf", "LDAP auth config file.")
 	flag.Parse()
 
 	err := godotenv.Load(*config)
