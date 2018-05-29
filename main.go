@@ -46,7 +46,8 @@ func healthz(c *gin.Context) {
 func auth(c *gin.Context) {
 	var apiScheme APIScheme
 	if err := c.ShouldBindJSON(&apiScheme); err == nil {
-		if user, err := authLDAP(apiScheme.Spec.Token); err == nil {
+		user, err := authLDAP(apiScheme.Spec.Token)
+		if err == nil && user != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"apiVersion": "authentication.k8s.io/v1beta1",
 				"kind":       "TokenReview",
@@ -60,7 +61,6 @@ func auth(c *gin.Context) {
 				},
 			})
 		} else {
-			log.Println(err)
 			c.JSON(http.StatusUnauthorized, authFailed)
 		}
 	} else {
