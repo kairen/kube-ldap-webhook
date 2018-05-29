@@ -34,7 +34,7 @@ $ kubectl create -f ldap-auth-daemonset.yml
 Finally start the API server with the following flags:
 ```sh
 --runtime-config=authentication.k8s.io/v1beta1=true
---authentication-token-webhook-config-file=/srv/kubernetes/webhook-authn
+--authentication-token-webhook-config-file=/srv/kubernetes/webhook-auth
 --authentication-token-webhook-cache-ttl=5m
 ```
 
