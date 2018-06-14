@@ -28,7 +28,7 @@ secret "ldap-auth-config" created
 
 Now create the `ldap-auth-webhook` daemonset:
 ```sh
-$ kubectl create -f ldap-auth-daemonset.yml
+$ kubectl create -f deploy
 ```
 
 Finally start the API server with the following flags:
