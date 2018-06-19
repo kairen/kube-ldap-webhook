@@ -94,8 +94,13 @@ func authLDAP(token string) (*User, error) {
 		[]string{os.Getenv("USER_NAME_ATTRIBUTE"), os.Getenv("USER_UID_ATTRIBUTE")},
 		nil,
 	))
-	if err != nil || len(sru.Entries) != 1 {
+	if err != nil {
 		return nil, err
+	}
+
+	// only one user
+	if len(sru.Entries) != 1 {
+		return nil, fmt.Errorf("too much user response")
 	}
 
 	user := &User{}

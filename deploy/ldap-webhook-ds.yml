@@ -53,9 +53,12 @@ spec:
             mountPath: /mnt/
       containers:
       - name: kube-ldap-webhook
-        image: inwinstack/kube-ldap-webhook:v0.2.0
+        image: inwinstack/kube-ldap-webhook:v0.2.1
         args:
         - -config=/config/ldap-auth.conf
+        env:
+        - name: GIN_MODE
+          value: release
         resources:
           limits:
             cpu: 250m
