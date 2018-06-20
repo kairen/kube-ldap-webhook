@@ -71,7 +71,7 @@ func auth(c *gin.Context) {
 	}
 }
 
-func GuidToOctetString(guid string) string {
+func guidToOctetString(guid string) string {
 	var buffer bytes.Buffer
 	for index, guidCharacter := range(guid) {
 		if index % 2 == 0 {
@@ -103,7 +103,7 @@ func authLDAP(token string) (*User, error) {
 	}
 
 	if strings.Contains(os.Getenv("USER_SEARCH_FILTER"), "objectGUID") {
-		token = GuidToOctetString(token)
+		token = guidToOctetString(token)
 	}
 
 	sru, err := l.Search(ldap.NewSearchRequest(
