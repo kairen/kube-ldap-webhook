@@ -28,7 +28,7 @@ type APISpec struct {
 }
 
 type User struct {
-	DN		 string
+	DN     string
 	Name   string
 	ID     string
 	Groups []string
@@ -58,7 +58,7 @@ func auth(c *gin.Context) {
 					"authenticated": true,
 					"user": gin.H{
 						"username": user.Name,
-						"uid":      user.Name,
+						"uid":      user.ID,
 						"groups":   user.Groups,
 					},
 				},
