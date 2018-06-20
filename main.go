@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"flag"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 
@@ -26,6 +28,7 @@ type APISpec struct {
 }
 
 type User struct {
+	DN		 string
 	Name   string
 	ID     string
 	Groups []string
@@ -68,6 +71,17 @@ func auth(c *gin.Context) {
 	}
 }
 
+func GuidToOctetString(guid string) string {
+	var buffer bytes.Buffer
+	for index, guidCharacter := range(guid) {
+		if index % 2 == 0 {
+			buffer.WriteString("\\")
+		}
+		buffer.WriteString(string(guidCharacter))
+	}
+	return buffer.String()
+}
+
 func authLDAP(token string) (*User, error) {
 	log.SetFlags(log.LstdFlags)
 	log.SetPrefix("[LDAP-AUTH] ")
@@ -86,6 +100,10 @@ func authLDAP(token string) (*User, error) {
 
 	if err = l.Bind(os.Getenv("BIND_DN"), os.Getenv("BIND_PASSWORD")); err != nil {
 		return nil, err
+	}
+
+	if strings.Contains(os.Getenv("USER_SEARCH_FILTER"), "objectGUID") {
+		token = GuidToOctetString(token)
 	}
 
 	sru, err := l.Search(ldap.NewSearchRequest(
@@ -112,7 +130,7 @@ func authLDAP(token string) (*User, error) {
 
 	srg, err := l.Search(ldap.NewSearchRequest(
 		os.Getenv("GROUP_SEARCH_BASE"), ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(os.Getenv("GROUP_SEARCH_FILTER"), user.Name, os.Getenv("GROUP_NAME_ATTRIBUTE")),
+		fmt.Sprintf(os.Getenv("GROUP_SEARCH_FILTER"), user.Name, user.DN),
 		[]string{os.Getenv("GROUP_NAME_ATTRIBUTE")},
 		nil,
 	))
