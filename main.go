@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"flag"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 
@@ -26,6 +28,7 @@ type APISpec struct {
 }
 
 type User struct {
+	DN     string
 	Name   string
 	ID     string
 	Groups []string
@@ -55,7 +58,7 @@ func auth(c *gin.Context) {
 					"authenticated": true,
 					"user": gin.H{
 						"username": user.Name,
-						"uid":      user.Name,
+						"uid":      user.ID,
 						"groups":   user.Groups,
 					},
 				},
@@ -66,6 +69,17 @@ func auth(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusUnauthorized, authFailed)
 	}
+}
+
+func guidToOctetString(guid string) string {
+	var buffer bytes.Buffer
+	for index, guidCharacter := range(guid) {
+		if index % 2 == 0 {
+			buffer.WriteString("\\")
+		}
+		buffer.WriteString(string(guidCharacter))
+	}
+	return buffer.String()
 }
 
 func authLDAP(token string) (*User, error) {
@@ -88,6 +102,10 @@ func authLDAP(token string) (*User, error) {
 		return nil, err
 	}
 
+	if strings.Contains(os.Getenv("USER_SEARCH_FILTER"), "objectGUID") {
+		token = guidToOctetString(token)
+	}
+
 	sru, err := l.Search(ldap.NewSearchRequest(
 		os.Getenv("USER_SEARCH_BASE"), ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf(os.Getenv("USER_SEARCH_FILTER"), token),
@@ -105,6 +123,7 @@ func authLDAP(token string) (*User, error) {
 
 	user := &User{}
 	for _, entry := range sru.Entries {
+		user.DN = entry.DN
 		user.Name = entry.GetAttributeValue(os.Getenv("USER_NAME_ATTRIBUTE"))
 		user.ID = entry.GetAttributeValue(os.Getenv("USER_UID_ATTRIBUTE"))
 		log.Printf("Search user result: %v %v\n", user.Name, user.ID)
@@ -112,7 +131,7 @@ func authLDAP(token string) (*User, error) {
 
 	srg, err := l.Search(ldap.NewSearchRequest(
 		os.Getenv("GROUP_SEARCH_BASE"), ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(os.Getenv("GROUP_SEARCH_FILTER"), user.Name, os.Getenv("GROUP_NAME_ATTRIBUTE")),
+		fmt.Sprintf(os.Getenv("GROUP_SEARCH_FILTER"), user.Name, user.DN),
 		[]string{os.Getenv("GROUP_NAME_ATTRIBUTE")},
 		nil,
 	))
