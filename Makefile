@@ -4,21 +4,24 @@ VERSION_BUILD ?= 1
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 ORG := github.com
-OWNER := inwinstack
+OWNER := kairen
 REPOPATH ?= $(ORG)/$(OWNER)/kube-ldap-webhook
 
 GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 
 .PHONY: all
 all: build
 
 .PHONY: build
-build: deps
+build: dep
 	@mkdir -p _output
-	GOOS=$(GOOS) go build -a -o _output/kube-ldap-webhook main.go
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
+	  -ldflags="-s -w" \
+	  -a -o _output/kube-ldap-webhook main.go
 
-.PHONY: deps
-deps:
+.PHONY: dep
+dep:
 	@dep ensure
 
 .PHONY: build_image

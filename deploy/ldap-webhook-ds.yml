@@ -53,7 +53,7 @@ spec:
             mountPath: /mnt/
       containers:
       - name: kube-ldap-webhook
-        image: inwinstack/kube-ldap-webhook:v0.2.1
+        image: kairen/kube-ldap-webhook:v0.2.1
         args:
         - -config=/config/ldap-auth.conf
         env:
