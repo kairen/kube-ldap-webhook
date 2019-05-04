@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/kairen/kube-ldap-webhook.svg?branch=master)](https://travis-ci.org/kairen/kube-ldap-webhook) [![Docker Build Statu](https://img.shields.io/docker/build/inwinstack/kube-ldap-webhook.svg)](https://hub.docker.com/r/inwinstack/kube-ldap-webhook/)
+[![Build Status](https://travis-ci.org/kubedev/kube-ldap-webhook.svg?branch=master)](https://travis-ci.org/kubedev/kube-ldap-webhook) [![Docker Pulls](https://img.shields.io/docker/pulls/kubedev/kube-ldap-webhook.svg)](https://hub.docker.com/r/kubedev/kube-ldap-webhook/)
+
 # Kubernetes LDAP Webhook Authentication
-Kubernetes LDAP authentication service written in Go. This repo is reimplement from [kube-ldap-authn](https://github.com/torchbox/kube-ldap-authn).
+Kubernetes LDAP authentication service written in Go. This repo is inspired by [kube-ldap-authn](https://github.com/torchbox/kube-ldap-authn).
 
 According to the project documentation we have the following schema:
 ```sh

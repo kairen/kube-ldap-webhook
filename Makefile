@@ -4,7 +4,7 @@ VERSION_BUILD ?= 1
 VERSION ?= v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_BUILD)
 
 ORG := github.com
-OWNER := kairen
+OWNER := kubedev
 REPOPATH ?= $(ORG)/$(OWNER)/kube-ldap-webhook
 
 GOOS ?= $(shell go env GOOS)

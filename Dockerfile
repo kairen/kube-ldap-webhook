@@ -2,7 +2,7 @@ FROM kairen/golang:1.11-alpine AS build-env
 LABEL maintainer="Kyle Bai <k2r2.bai@gmail.com>"
 
 ENV GOPATH "/go"
-ENV PROJECT_PATH "$GOPATH/src/github.com/kairen/kube-ldap-webhook"
+ENV PROJECT_PATH "$GOPATH/src/github.com/kubedev/kube-ldap-webhook"
 
 COPY . $PROJECT_PATH
 RUN cd $PROJECT_PATH && make && \

@@ -26,13 +26,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      name: k8s-ldap
+      app: k8s-ldap
   template:
     metadata:
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ""
       labels:
-        name: k8s-ldap
+        app: k8s-ldap
     spec:
       hostNetwork: true
       nodeSelector:
@@ -53,7 +53,7 @@ spec:
             mountPath: /mnt/
       containers:
       - name: kube-ldap-webhook
-        image: kairen/kube-ldap-webhook:v0.2.1
+        image: kubedev/kube-ldap-webhook:v0.2.1
         args:
         - -config=/config/ldap-auth.conf
         env:

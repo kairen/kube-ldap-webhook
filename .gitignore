@@ -9,3 +9,4 @@
 bin/
 gopath/
 _output/
+vendor/
